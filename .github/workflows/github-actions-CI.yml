@@ -25,10 +25,16 @@ jobs:
         nohup ./workout server -p 9002 > server.log 2>&1 &
         echo $! > server.pid  # Save the process ID
 
-    - name: Run Tests (e.g., curl to check if server is running)
+    - name: Server health status check
       run: |
         sleep 5  # Give server some time to start
-        curl -f http://localhost:9002/wokouttracker/health  # Change to the correct URL or test you need
+        response=$(curl -s http://localhost:9002/wokouttracker/health)
+        if[[ "$response" == '{"Status":"Healthy"}' ]]; then
+          echo "Server is up, running and healthy!"
+        else
+          echo "Server is not healthy...."
+          exit 1
+        fi
 
     - name: Stop Server
       run: |

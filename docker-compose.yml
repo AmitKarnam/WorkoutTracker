@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: workout-tracker-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - workout-mysql-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+
+volumes:
+  workout-mysql-data:

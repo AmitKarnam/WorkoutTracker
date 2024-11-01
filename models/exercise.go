@@ -1,6 +1,11 @@
 package models
 
+import (
+	"gorm.io/gorm"
+)
+
 type Exercise struct {
+	gorm.Model
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	MuscleGroup MuscleGroup `json:"muscle_group"`

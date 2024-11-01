@@ -1,8 +1,13 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Workout struct {
+	gorm.Model
 	Exercise Exercise  `json:"exercise"`
 	Reps     int       `json:"reps"`
 	Weight   float64   `json:"weight,omitempty"`

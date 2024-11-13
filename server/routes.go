@@ -18,23 +18,23 @@ func initRoutes(engine *gin.Engine) {
 		{
 			versionGroup := apiGroup.Group("/v1")
 
-			{
-				muscleGroup := versionGroup.Group("/musclegroups")
-				muscleGroupController := controllers.MuscleGroupController{}
-				muscleGroup.GET("", muscleGroupController.Get)
-				muscleGroup.POST("", muscleGroupController.Post)
-				//muscleGroup.DELETE(":id", muscleGroupController.Delete)
-			}
+			// {
+			// 	muscleGroup := versionGroup.Group("/musclegroups")
+			// 	muscleGroupController := controllers.MuscleGroupController{}
+			// 	muscleGroup.GET("", muscleGroupController.Get)
+			// 	muscleGroup.POST("", muscleGroupController.Post)
+			// 	//muscleGroup.DELETE(":id", muscleGroupController.Delete)
+			// }
 
-			{
-				exerciseGroup := versionGroup.Group("/exercises")
-				exerciseController := controllers.ExerciseController{}
-				exerciseGroup.GET("", exerciseController.Get)
-				exerciseGroup.GET(":musclegroup", exerciseController.GetByMuscleGroup)
-				exerciseGroup.POST("", exerciseController.Post)
-				exerciseGroup.PUT(":id", exerciseController.Put)
-				exerciseGroup.DELETE(":id", exerciseController.Delete)
-			}
+			// {
+			// 	exerciseGroup := versionGroup.Group("/exercises")
+			// 	exerciseController := controllers.ExerciseController{}
+			// 	exerciseGroup.GET("", exerciseController.Get)
+			// 	exerciseGroup.GET(":musclegroup", exerciseController.GetByMuscleGroup)
+			// 	exerciseGroup.POST("", exerciseController.Post)
+			// 	exerciseGroup.PUT(":id", exerciseController.Put)
+			// 	exerciseGroup.DELETE(":id", exerciseController.Delete)
+			// }
 
 			{
 				workoutGroup := versionGroup.Group("/workouts")

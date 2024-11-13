@@ -1,17 +1,12 @@
+// models/muscle_group.go
 package models
 
-type MuscleGroup string
-
-const (
-	Chest MuscleGroup = "chest"
-	Back  MuscleGroup = "back"
-	Legs  MuscleGroup = "legs"
-	Arms  MuscleGroup = "arms"
-	Abs   MuscleGroup = "abs"
+import (
+	"gorm.io/gorm"
 )
 
-var MuscleGroupList []MuscleGroup
-
-func init() {
-	MuscleGroupList = []MuscleGroup{Chest, Back, Legs, Arms, Abs}
+type MuscleGroup struct {
+	gorm.Model         // Embedding gorm.Model
+	MuscleGroup string `json:"muscle_group"`
+	Description string `json:"description"`
 }

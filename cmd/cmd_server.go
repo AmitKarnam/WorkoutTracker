@@ -6,13 +6,12 @@ package cmd
 import (
 	"fmt"
 
+	mysqlDB "github.com/AmitKarnam/WorkoutTracker/database/mysql"
 	"github.com/AmitKarnam/WorkoutTracker/models"
 	"github.com/AmitKarnam/WorkoutTracker/server"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
 var port string
@@ -24,6 +23,7 @@ var serverCmd = &cobra.Command{
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var eg errgroup.Group
+		var err error
 
 		//Start Server
 		eg.Go(func() error {
@@ -35,20 +35,20 @@ var serverCmd = &cobra.Command{
 		})
 
 		// Load environment variables
-		if err := godotenv.Load(); err != nil {
+		if err = godotenv.Load(); err != nil {
 			return fmt.Errorf("Error loading .env file")
 		}
 
-		// Connecting to Database
-		fmt.Printf("Connecting to database and migrating database.....")
-		dsn := "amit:amit@tcp(localhost:3307)/workout_tracker"
-		db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		// Connecting to Database and migrating
+		dbPath := "amit:amit@tcp(localhost:3307)/workout_tracker"
+		dbConn, err := mysqlDB.DBGetConnection(dbPath)
 		if err != nil {
-			fmt.Errorf("Error connectin to database : ", err)
+			return err
 		}
-
-		db.AutoMigrate(&models.Exercise{})
-		//db.AutoMigrate(&models.Workout{})
+		dbConn.AutoMigrate(&models.MuscleGroup{})
+		dbConn.AutoMigrate(&models.Exercise{})
+		dbConn.AutoMigrate(&models.Workout{})
+		fmt.Println("Completed migration database..")
 
 		eg.Wait()
 

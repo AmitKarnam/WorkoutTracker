@@ -18,30 +18,30 @@ func initRoutes(engine *gin.Engine) {
 		{
 			versionGroup := apiGroup.Group("/v1")
 
-			// {
-			// 	muscleGroup := versionGroup.Group("/musclegroups")
-			// 	muscleGroupController := controllers.MuscleGroupController{}
-			// 	muscleGroup.GET("", muscleGroupController.Get)
-			// 	muscleGroup.POST("", muscleGroupController.Post)
-			// 	//muscleGroup.DELETE(":id", muscleGroupController.Delete)
-			// }
+			{
+				muscleGroup := versionGroup.Group("/musclegroups")
+				muscleGroupController := controllers.MuscleGroupController{}
+				muscleGroup.GET("", muscleGroupController.Get)
+				muscleGroup.POST("", muscleGroupController.Post)
+				muscleGroup.DELETE(":name", muscleGroupController.Delete)
+			}
 
-			// {
-			// 	exerciseGroup := versionGroup.Group("/exercises")
-			// 	exerciseController := controllers.ExerciseController{}
-			// 	exerciseGroup.GET("", exerciseController.Get)
-			// 	exerciseGroup.GET(":musclegroup", exerciseController.GetByMuscleGroup)
-			// 	exerciseGroup.POST("", exerciseController.Post)
-			// 	exerciseGroup.PUT(":id", exerciseController.Put)
-			// 	exerciseGroup.DELETE(":id", exerciseController.Delete)
-			// }
+			{
+				exerciseGroup := versionGroup.Group("/exercises")
+				exerciseController := controllers.ExerciseController{}
+				exerciseGroup.GET("", exerciseController.GetExercises)
+				exerciseGroup.POST("", exerciseController.Post)
+				exerciseGroup.PUT("", exerciseController.Put)
+				exerciseGroup.DELETE(":name", exerciseController.Delete)
+			}
 
 			{
 				workoutGroup := versionGroup.Group("/workouts")
-				workoutGroup.GET("")
-				workoutGroup.POST("")
-				workoutGroup.PUT(":id")
-				workoutGroup.DELETE(":id")
+				workoutController := controllers.WorkoutController{}
+				workoutGroup.GET("", workoutController.GetWorkouts)
+				workoutGroup.POST("", workoutController.Post)
+				workoutGroup.PUT(":id", workoutController.Put)
+				workoutGroup.DELETE(":id", workoutController.Delete)
 			}
 		}
 	}

@@ -10,5 +10,5 @@ type Workout struct {
 	ExerciseID uint     `json:"exercise_id"` // Foreign key for Exercise
 	Reps       int64    `json:"reps"`
 	Weight     int64    `json:"weight"`
-	Exercise   Exercise `gorm:"foreignKey:ExerciseID"` // Association
+	Exercise   Exercise `gorm:"foreignKey:ExerciseID","constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"` // Association
 }

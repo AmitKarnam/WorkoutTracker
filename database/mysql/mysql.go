@@ -7,40 +7,30 @@ import (
 )
 
 // Defines the implementing type DB, which in this case is mysql
-type mysqlDB struct {
-	path   string
-	DbConn *gorm.DB
+type MySQLDB struct {
+	path string
 }
 
 // Asserts that the implementing type DB implements the GetConnection method
-var _ database.Database = &mysqlDB{}
+var _ database.Database = &MySQLDB{}
 
-// Singleton Pattern is implemented here.
-var dbInstance *mysqlDB
+// Singleton Pattern is implemented using this reference variable, which is used by other modules to access this singleton reference.
+var DB database.Database
 
-// Assigns the singleton reference variable the mysql DB instance
-func DBGetConnection(path string) (*gorm.DB, error) {
-	var err error
-	if dbInstance == nil {
-		dbInstance = new(path)
-		dbInstance.DbConn, err = dbInstance.GetConnection()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return dbInstance.DbConn, nil
+// Initialise DB
+func NewMySQLInit(path string) {
+	DB = new(path)
 }
 
 // Creation of mysql db instance
-func new(path string) *mysqlDB {
-	return &mysqlDB{
+func new(path string) *MySQLDB {
+	return &MySQLDB{
 		path: path,
 	}
 }
 
 // Implementation of the getConnection method
-func (s *mysqlDB) GetConnection() (*gorm.DB, error) {
+func (s *MySQLDB) GetConnection() (*gorm.DB, error) {
 	return (gorm.Open(mysql.Open(s.path), &gorm.Config{
 		SkipDefaultTransaction: true,
 	}))

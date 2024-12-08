@@ -6,7 +6,7 @@ package cmd
 import (
 	"fmt"
 
-	mysqlDB "github.com/AmitKarnam/WorkoutTracker/database/mysql"
+	"github.com/AmitKarnam/WorkoutTracker/database/mysql"
 	"github.com/AmitKarnam/WorkoutTracker/models"
 	"github.com/AmitKarnam/WorkoutTracker/server"
 	"github.com/joho/godotenv"
@@ -39,9 +39,14 @@ var serverCmd = &cobra.Command{
 			return fmt.Errorf("Error loading .env file")
 		}
 
-		// Connecting to Database and migrating
-		dbPath := "amit:amit@tcp(localhost:3307)/workout_tracker"
-		dbConn, err := mysqlDB.DBGetConnection(dbPath)
+		// TODO : This needs to come from env variables
+		dbPath := "amit:amit@tcp(localhost:3307)/workout_tracker?parseTime=true"
+
+		// Initialise DB
+		mysql.NewMySQLInit(dbPath)
+
+		// Get database connection and migrate the models
+		dbConn, err := mysql.DB.GetConnection()
 		if err != nil {
 			return err
 		}

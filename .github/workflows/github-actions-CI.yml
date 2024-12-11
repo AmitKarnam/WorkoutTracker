@@ -2,40 +2,52 @@ name: Go
 
 on:
   push:
-    branches: [ "*" ]
+    branches: ["*"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.21.4'
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21.4"
 
-    - name: Build
-      run: go build -o ./workout 
+      - name: Install MySQL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-server
+          sudo service mysql start
+          sudo mysql -e "CREATE DATABASE workout_tracker;"
+          sudo mysql -e "CREATE USER 'amit'@'localhost' IDENTIFIED BY 'amit';"
+          sudo mysql -e "GRANT ALL PRIVILEGES ON workout_tracker.* TO 'amit'@'localhost';"
+          sudo mysql -e "FLUSH PRIVILEGES;"
+          sudo sed -i "s/port=3306/port=3307/" /etc/mysql/mysql.conf.d/mysqld.cnf
+          sudo service mysql restart
 
-    - name: Start Server in Background
-      run: |
-        nohup ./workout server -p 9002 > server.log 2>&1 &
-        echo $! > server.pid  # Save the process ID
+      - name: Build
+        run: go build -o ./workout
 
-    - name: Server health status check
-      run: |
-        sleep 5  # Give server some time to start
-        response=$(curl -s http://localhost:9002/wokouttracker/health)
-        if [[ "$response" == '{"Status":"Healthy"}' ]]; then
-          echo "Server is up, running and healthy!"
-        else
-          echo "Server is not healthy...."
-          exit 1
-        fi
+      - name: Start Server in Background
+        run: |
+          nohup ./workout server -p 9002 > server.log 2>&1 &
+          echo $! > server.pid  # Save the process ID
 
-    - name: Stop Server
-      run: |
-        kill $(cat server.pid)
+      - name: Server health status check
+        run: |
+          sleep 5  # Give server some time to start
+          response=$(curl -s http://localhost:9002/wokouttracker/health)
+          if [[ "$response" == '{"Status":"Healthy"}' ]]; then
+            echo "Server is up, running and healthy!"
+          else
+            echo "Server is not healthy...."
+            exit 1
+          fi
+
+      - name: Stop Server
+        run: |
+          kill $(cat server.pid)

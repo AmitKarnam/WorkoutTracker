@@ -1,18 +1,24 @@
 package controllers
 
 import (
+	"errors"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/AmitKarnam/WorkoutTracker/database/mysql"
 	"github.com/AmitKarnam/WorkoutTracker/models"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type MuscleGroupController struct{}
 
 // Get method to fetch all muscle groups from database
 func (msc *MuscleGroupController) Get(c *gin.Context) {
+
+	name := c.Query("name")
+
 	dbConn, err := mysql.DB.GetConnection()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error connecting to database"})
@@ -20,7 +26,12 @@ func (msc *MuscleGroupController) Get(c *gin.Context) {
 	}
 
 	var muscleGroups []models.MuscleGroup
-	err = dbConn.Find(&muscleGroups).Error
+	if name != "" {
+		err = dbConn.Where("muscle_group = ?", name).Find(&muscleGroups).Error
+	} else {
+		err = dbConn.Find(&muscleGroups).Error
+	}
+
 	if err != nil {
 		log.Println("Error fetching muscle groups:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error fetching muscle groups"})
@@ -60,6 +71,50 @@ func (msc *MuscleGroupController) Post(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"data": muscleGroup})
+}
+
+// Put method to edit a muscle group record
+func (mc *MuscleGroupController) Put(c *gin.Context) {
+	idStr := c.Param("id")
+
+	id, err := strconv.ParseUint(idStr, 10, 32) // Convert string ID to uint
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid muscle group ID"})
+		return
+	}
+
+	dbConn, err := mysql.DB.GetConnection()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error connecting to database"})
+		return
+	}
+
+	var muscleGroup models.MuscleGroup
+	if err := dbConn.First(&muscleGroup, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "muscle group not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error fetching muscle group"})
+		return
+	}
+
+	var input models.MuscleGroup
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+		return
+	}
+
+	// Update fields from input
+	muscleGroup.MuscleGroup = input.MuscleGroup
+	muscleGroup.Description = input.Description
+
+	if err := dbConn.Save(&muscleGroup).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error updating muscle group"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": muscleGroup})
 }
 
 // Delete method to delete an existing muscle group from database

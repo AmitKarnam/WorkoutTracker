@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/AmitKarnam/WorkoutTracker/database/mysql"
 	"github.com/AmitKarnam/WorkoutTracker/models"
@@ -79,6 +80,51 @@ func (ec *ExerciseController) Post(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": exercise})
 }
 
+// UpdateByID method to update an exercise based on the ID in the URL parameter
+func (ec *ExerciseController) Put(c *gin.Context) {
+	idStr := c.Param("id") // Get the ID from the URL parameters
+
+	id, err := strconv.ParseUint(idStr, 10, 32) // Convert string ID to uint
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid exercise ID"})
+		return
+	}
+
+	var input models.Exercise
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	dbConn, err := mysql.DB.GetConnection()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error connecting to database"})
+		return
+	}
+
+	var existingExercise models.Exercise
+	if err := dbConn.First(&existingExercise, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "exercise not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error fetching exercise"})
+		return
+	}
+
+	// Update fields from input
+	existingExercise.Name = input.Name
+	existingExercise.Description = input.Description
+	existingExercise.MuscleGroupID = input.MuscleGroupID
+
+	if err := dbConn.Save(&existingExercise).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error updating exercise"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": existingExercise})
+}
+
 // Delete method to remove an exercise by name
 func (ec *ExerciseController) Delete(c *gin.Context) {
 	name := c.Param("name") // Get the exercise name from the URL parameters
@@ -105,46 +151,4 @@ func (ec *ExerciseController) Delete(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "exercise deleted successfully"})
-}
-
-// UpdateByID method to update an exercise based on the ID in the JSON body
-func (ec *ExerciseController) Put(c *gin.Context) {
-	var input models.Exercise
-
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
-		return
-	}
-
-	if input.ID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "exercise ID is required"})
-		return
-	}
-
-	dbConn, err := mysql.DB.GetConnection()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error connecting to database"})
-		return
-	}
-
-	var existingExercise models.Exercise
-	if err := dbConn.First(&existingExercise, input.ID).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "exercise not found"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error fetching exercise"})
-		return
-	}
-
-	existingExercise.Name = input.Name
-	existingExercise.Description = input.Description
-	existingExercise.MuscleGroupID = input.MuscleGroupID
-
-	if err := dbConn.Save(&existingExercise).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error updating exercise"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": existingExercise})
 }

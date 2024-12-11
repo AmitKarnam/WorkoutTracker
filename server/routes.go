@@ -23,6 +23,7 @@ func initRoutes(engine *gin.Engine) {
 				muscleGroupController := controllers.MuscleGroupController{}
 				muscleGroup.GET("", muscleGroupController.Get)
 				muscleGroup.POST("", muscleGroupController.Post)
+				muscleGroup.PUT(":id", muscleGroupController.Put)
 				muscleGroup.DELETE(":name", muscleGroupController.Delete)
 			}
 
@@ -31,7 +32,7 @@ func initRoutes(engine *gin.Engine) {
 				exerciseController := controllers.ExerciseController{}
 				exerciseGroup.GET("", exerciseController.GetExercises)
 				exerciseGroup.POST("", exerciseController.Post)
-				exerciseGroup.PUT("", exerciseController.Put)
+				exerciseGroup.PUT(":id", exerciseController.Put)
 				exerciseGroup.DELETE(":name", exerciseController.Delete)
 			}
 

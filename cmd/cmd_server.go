@@ -5,11 +5,14 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/AmitKarnam/WorkoutTracker/database/mysql"
 	"github.com/AmitKarnam/WorkoutTracker/models"
 	"github.com/AmitKarnam/WorkoutTracker/server"
 	"github.com/joho/godotenv"
+	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/providers/env"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 )
@@ -25,6 +28,31 @@ var serverCmd = &cobra.Command{
 		var eg errgroup.Group
 		var err error
 
+		// Load environment variables from .env file (optional)
+		if err := godotenv.Load(); err != nil {
+			log.Println("No .env file found, proceeding with environment variables")
+		}
+
+		// Create a new koanf instance
+		k := koanf.New(".")
+
+		// Load environment variables into koanf
+		if err := k.Load(env.Provider("", ".", func(s string) string {
+			return s // No transformation on environment variable keys
+		}), nil); err != nil {
+			log.Fatalf("Error loading environment variables: %v", err)
+		}
+
+		// Read values from koanf
+		user := k.String("MYSQL_DATABASE_USER")
+		password := k.String("MYSQL_DATABASE_PASSWORD")
+		host := k.String("MYSQL_HOST")
+		mysql_port := k.String("MYSQL_PORT")
+		database := k.String("MYSQL_DATABASE")
+
+		// Create the database connection string
+		dbPath := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, password, host, mysql_port, database)
+
 		//Start Server
 		eg.Go(func() error {
 			err := server.Start(port)
@@ -33,14 +61,6 @@ var serverCmd = &cobra.Command{
 			}
 			return nil
 		})
-
-		// Load environment variables
-		if err = godotenv.Load(); err != nil {
-			return fmt.Errorf("Error loading .env file")
-		}
-
-		// TODO : This needs to come from env variables
-		dbPath := "amit:amit@tcp(localhost:3307)/workout_tracker?parseTime=true"
 
 		// Initialise DB
 		mysql.NewMySQLInit(dbPath)

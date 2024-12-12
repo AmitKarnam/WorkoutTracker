@@ -28,7 +28,7 @@ jobs:
             MYSQL_DATABASE_USER: root
             MYSQL_DATABASE_PASSWORD: root
             MYSQL_PORT: 3306
-            MYSQL_HOST: localhost
+            MYSQL_HOST: 0.0.0.0
             MYSQL_DATABASE: workout_tracker
         run: |
           mysql -u $MYSQL_ROOT_USER -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS workout_tracker;"

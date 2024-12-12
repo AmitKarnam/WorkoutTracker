@@ -17,20 +17,21 @@ jobs:
         with:
           go-version: "1.21.4"
 
-      - name: Install MySQL
+      - name: Start MySQL Service
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-server
-          sudo service mysql start
-          # Set root password
-          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'root_password';"
-          # Create database and user
-          sudo mysql -u root -proot_password -e "CREATE DATABASE workout_tracker;"
-          sudo mysql -u root -proot_password -e "CREATE USER 'amit'@'localhost' IDENTIFIED BY 'amit';"
-          sudo mysql -u root -proot_password -e "GRANT ALL PRIVILEGES ON workout_tracker.* TO 'amit'@'localhost';"
-          sudo mysql -u root -proot_password -e "FLUSH PRIVILEGES;"
-          sudo sed -i "s/port=3306/port=3307/" /etc/mysql/mysql.conf.d/mysqld.cnf
-          sudo service mysql restart
+          sudo systemctl start mysql.service
+
+      - name: Create Database
+        env: 
+            MYSQL_ROOT_USER: root
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE_USER: root
+            MYSQL_DATABASE_PASSWORD: root
+            MYSQL_PORT: 3306
+            MYSQL_HOST: localhost
+            MYSQL_DATABASE: workout_tracker
+        run: |
+          mysql -u $MYSQL_USER -$MYSQL_PASSWORD -e "CREATE DATABASE IF NOT EXISTS workout_tracker;"
 
       - name: Build
         run: go build -o ./workout

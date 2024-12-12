@@ -41,6 +41,9 @@ jobs:
           nohup ./workout server -p 9002 > server.log 2>&1 &
           echo $! > server.pid  # Save the process ID
 
+      - name: Debug Server Log
+        run: cat server.log
+
       - name: Server health status check
         run: |
           sleep 5  # Give server some time to start
@@ -51,9 +54,6 @@ jobs:
             echo "Server is not healthy...."
             exit 1
           fi
-
-      - name: Debug Server Log
-        run: cat server.log
 
       - name: Stop Server
         run: |

@@ -31,7 +31,7 @@ jobs:
             MYSQL_HOST: localhost
             MYSQL_DATABASE: workout_tracker
         run: |
-          mysql -u $MYSQL_USER -$MYSQL_PASSWORD -e "CREATE DATABASE IF NOT EXISTS workout_tracker;"
+          mysql -u $MYSQL_ROOT_USER -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS workout_tracker;"
 
       - name: Build
         run: go build -o ./workout

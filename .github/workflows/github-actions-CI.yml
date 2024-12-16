@@ -47,7 +47,10 @@ jobs:
           echo $! > server.pid  # Save the process ID
 
       - name: Debug Server Log
-        run: cat server.log
+        run: |
+          netstat -tuln | grep 9000
+          ps aux | grep workout
+          cat server.log
 
       - name: Server health status check
         run: |

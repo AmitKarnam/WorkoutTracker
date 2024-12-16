@@ -73,7 +73,7 @@ var serverCmd = &cobra.Command{
 		dbConn.AutoMigrate(&models.MuscleGroup{})
 		dbConn.AutoMigrate(&models.Exercise{})
 		dbConn.AutoMigrate(&models.Workout{})
-		fmt.Println("Completed migration database..")
+		log.Println("Completed migration database..")
 
 		eg.Wait()
 

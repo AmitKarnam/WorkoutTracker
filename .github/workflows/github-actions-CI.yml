@@ -43,7 +43,7 @@ jobs:
 
       - name: Start Server in Background
         run: |
-          nohup ./workout server -p 9002 > server.log 2>&1 &
+          nohup ./workout server > server.log 2>&1 &
           echo $! > server.pid  # Save the process ID
 
       - name: Debug Server Log
@@ -52,7 +52,7 @@ jobs:
       - name: Server health status check
         run: |
           sleep 5  # Give server some time to start
-          response=$(curl -v http://localhost:9002/workouttracker/health)
+          response=$(curl -v http://localhost:9000/workouttracker/health)
           if [[ "$response" == '{"Status":"Healthy"}' ]]; then
             echo "Server is up, running and healthy!"
           else

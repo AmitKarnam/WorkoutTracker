@@ -33,6 +33,11 @@ jobs:
         run: |
           mysql -u $MYSQL_ROOT_USER -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS workout_tracker;"
 
+      - name: install mysql client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y  mysql-client 
+
       - name: Build
         run: go build -o ./workout
 

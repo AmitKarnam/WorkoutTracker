@@ -52,7 +52,7 @@ jobs:
       - name: Server health status check
         run: |
           sleep 5  # Give server some time to start
-          response=$(curl -s http://localhost:9002/wokouttracker/health)
+          response=$(curl -s http://127.0.0.1:9002/wokouttracker/health)
           if [[ "$response" == '{"Status":"Healthy"}' ]]; then
             echo "Server is up, running and healthy!"
           else

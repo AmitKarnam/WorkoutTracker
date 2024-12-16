@@ -7,7 +7,7 @@ import (
 )
 
 func initRoutes(engine *gin.Engine) {
-	serviceGroup := engine.Group("wokouttracker")
+	serviceGroup := engine.Group("workouttracker")
 	{
 		// Health endpoint
 		health := serviceGroup.Group("/health")

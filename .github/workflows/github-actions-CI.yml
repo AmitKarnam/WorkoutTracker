@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env: # Define global environment variables for the job
+    env:
       MYSQL_ROOT_USER: root
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE_USER: root
@@ -34,18 +34,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y  mysql-client 
 
-      - name: Verify MySQL Root User
-        run: |
-          echo "MYSQL_ROOT_USER: $MYSQL_ROOT_USER"
-          echo "MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD"
-
       - name: Create Database
         run: |
           mysql -u $MYSQL_ROOT_USER -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS workout_tracker;"
-
-      - name: Verify Root User Access
-        run: |
-          mysql -u $MYSQL_ROOT_USER -p"$MYSQL_ROOT_PASSWORD" -e "USE workout_tracker; SHOW TABLES;"
 
       - name: Build
         run: go build -o ./workout

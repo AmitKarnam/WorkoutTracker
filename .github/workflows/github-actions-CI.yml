@@ -9,6 +9,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env: # Define global environment variables for the job
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE_USER: root
+      MYSQL_DATABASE_PASSWORD: root
+      MYSQL_PORT: 3306
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_DATABASE: workout_tracker
     steps:
       - uses: actions/checkout@v4
 
@@ -26,15 +34,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y  mysql-client 
 
+      - name: Verify MySQL Root User
+        run: |
+          echo "MYSQL_ROOT_USER: $MYSQL_ROOT_USER"
+          echo "MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD"
+
       - name: Create Database
-        env: 
-            MYSQL_ROOT_USER: root
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE_USER: root
-            MYSQL_DATABASE_PASSWORD: root
-            MYSQL_PORT: 3306
-            MYSQL_HOST: 127.0.0.1
-            MYSQL_DATABASE: workout_tracker
         run: |
           mysql -u $MYSQL_ROOT_USER -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS workout_tracker;"
 

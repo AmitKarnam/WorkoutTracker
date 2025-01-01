@@ -45,21 +45,7 @@ jobs:
         run: |
           nohup ./workout server > server.log 2>&1 &
           echo $! > server.pid  # Save the process ID
-
-      - name: Check Log File Existence
-        run: |
-            if [ -f server.log ]; then
-              echo "server.log exists:"
-              cat server.log
-            else
-              echo "server.log does not exist"
-            fi
-
-      - name: Verify Port Binding
-        run: |
-          sudo apt-get update && sudo apt-get install -y net-tools
-          netstat -tuln | grep 9000 || echo "No service bound to port 9000"
-
+          
       - name: Server health status check
         run: |
           sleep 5  # Give server some time to start

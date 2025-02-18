@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/AmitKarnam/WorkoutTracker/database/mysql"
-	"github.com/AmitKarnam/WorkoutTracker/models"
+	"github.com/AmitKarnam/WorkoutTracker/internal/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

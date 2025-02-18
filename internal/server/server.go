@@ -1,14 +1,11 @@
 package server
 
-import (
-	"fmt"
-	"log"
-)
+import "fmt"
 
 func Start(port string) error {
 	engine, err := initEngine()
 	if err != nil {
-		log.Fatalf("Failed to initialize router: %v", err)
+		return err
 	}
 
 	// Initialise routes

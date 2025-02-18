@@ -6,7 +6,7 @@ import (
 )
 
 type MuscleGroup struct {
-	gorm.Model         // Embedding gorm.Model
+	gorm.Model
 	MuscleGroup string `json:"muscle_group"`
 	Description string `json:"description"`
 }

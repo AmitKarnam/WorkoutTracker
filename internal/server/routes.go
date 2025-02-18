@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/AmitKarnam/WorkoutTracker/controllers"
+	"github.com/AmitKarnam/WorkoutTracker/internal/controllers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,30 +19,21 @@ func initRoutes(engine *gin.Engine) {
 			versionGroup := apiGroup.Group("/v1")
 
 			{
+				exerciseCategory := versionGroup.Group("/exercisecategories")
+				exerciseCategoryController := controllers.ExerciseCategoryController{}
+				exerciseCategory.GET("", exerciseCategoryController.Get)
+				exerciseCategory.GET(":id", exerciseCategoryController.GetByID)
+				exerciseCategory.POST("", exerciseCategoryController.Post)
+				exerciseCategory.DELETE(":id", exerciseCategoryController.Delete)
+			}
+
+			{
 				muscleGroup := versionGroup.Group("/musclegroups")
 				muscleGroupController := controllers.MuscleGroupController{}
 				muscleGroup.GET("", muscleGroupController.Get)
 				muscleGroup.POST("", muscleGroupController.Post)
 				muscleGroup.PUT(":id", muscleGroupController.Put)
 				muscleGroup.DELETE(":name", muscleGroupController.Delete)
-			}
-
-			{
-				exerciseGroup := versionGroup.Group("/exercises")
-				exerciseController := controllers.ExerciseController{}
-				exerciseGroup.GET("", exerciseController.GetExercises)
-				exerciseGroup.POST("", exerciseController.Post)
-				exerciseGroup.PUT(":id", exerciseController.Put)
-				exerciseGroup.DELETE(":name", exerciseController.Delete)
-			}
-
-			{
-				workoutGroup := versionGroup.Group("/workouts")
-				workoutController := controllers.WorkoutController{}
-				workoutGroup.GET("", workoutController.GetWorkouts)
-				workoutGroup.POST("", workoutController.Post)
-				workoutGroup.PUT(":id", workoutController.Put)
-				workoutGroup.DELETE(":id", workoutController.Delete)
 			}
 		}
 	}

@@ -2,11 +2,14 @@ package server
 
 import (
 	"github.com/AmitKarnam/WorkoutTracker/internal/controllers"
+	"github.com/AmitKarnam/WorkoutTracker/internal/repository"
+	"github.com/AmitKarnam/WorkoutTracker/internal/services"
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
 
-func initRoutes(engine *gin.Engine) {
+func initRoutes(engine *gin.Engine, db *gorm.DB) {
 	serviceGroup := engine.Group("workouttracker")
 	{
 		// Health endpoint
@@ -29,7 +32,9 @@ func initRoutes(engine *gin.Engine) {
 
 			{
 				muscleGroup := versionGroup.Group("/musclegroups")
-				muscleGroupController := controllers.MuscleGroupController{}
+				muscleGroupRepository := repository.NewMuscleGroupRepository(db)
+				muscleGroupService := services.NewMuscleGroupService(muscleGroupRepository)
+				muscleGroupController := controllers.NewMuscleGroupController(muscleGroupService)
 				muscleGroup.GET("", muscleGroupController.Get)
 				muscleGroup.POST("", muscleGroupController.Post)
 				muscleGroup.PUT(":id", muscleGroupController.Put)

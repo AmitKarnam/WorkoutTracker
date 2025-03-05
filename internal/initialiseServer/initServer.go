@@ -1,4 +1,4 @@
-package initialiseserver
+package initialiseServer
 
 import (
 	"fmt"

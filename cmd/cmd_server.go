@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	initialiseserver "github.com/AmitKarnam/WorkoutTracker/internal/initialiseserver"
+	"github.com/AmitKarnam/WorkoutTracker/internal/initialiseServer"
 	"github.com/AmitKarnam/WorkoutTracker/logger"
 	"github.com/spf13/cobra"
 )
@@ -15,7 +15,7 @@ var serverCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := initialiseserver.InitServer(port)
+		err := initialiseServer.InitServer(port)
 		if err != nil {
 			logger.Logger.Error("Failed to initialise server", "error", err)
 			return err

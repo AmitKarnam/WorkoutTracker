@@ -54,6 +54,7 @@ jobs:
             echo "Server is up, running and healthy!"
           else
             echo "Server is not healthy...."
+            car server.log
             exit 1
           fi
 

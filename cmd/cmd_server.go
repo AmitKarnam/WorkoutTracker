@@ -1,10 +1,7 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
-	initialiseserver "github.com/AmitKarnam/WorkoutTracker/internal/initaliseserver"
+	initialiseserver "github.com/AmitKarnam/WorkoutTracker/internal/initialiseserver"
 	"github.com/AmitKarnam/WorkoutTracker/logger"
 	"github.com/spf13/cobra"
 )

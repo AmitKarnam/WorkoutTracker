@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -21,49 +22,62 @@ func NewMuscleGroupController(service services.MuscleGroupService) *MuscleGroupC
 
 // Get method to fetch all muscle groups from database
 func (msc *MuscleGroupController) Get(c *gin.Context) {
+	logger.Logger.Info("received request to get all muscle groups")
 	muscleGroups, err := msc.service.GetAll()
 	if err != nil {
 		logger.Logger.Error("error fetching muscle groups", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error fetching muscle groups"})
 		return
 	}
+	logger.Logger.Info("successfully fetched all muscle groups")
 	c.JSON(http.StatusOK, gin.H{"data": muscleGroups})
 }
 
 // GetByID method to fetch a muscle group by ID from database
 func (msc *MuscleGroupController) GetByID(c *gin.Context) {
-	idStr := c.Query("id")
+	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
+		logger.Logger.Error("error fetching muscle group by id, string converstion to interger error", "id", id)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid muscle group ID"})
 		return
 	}
+	logger.Logger.Info("received request to fetch muscle group by id", "id", id)
 
 	muscleGroup, err := msc.service.GetByID(uint(id))
 	if err != nil {
-		logger.Logger.Error("error fetching muscle group", "error", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error fetching muscle group"})
+		logger.Logger.Error("error fetching muscle group by id", "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("error fetching muscle group by id, %s", err.Error())})
 		return
 	}
+	logger.Logger.Info("successfully fetched muscle group by id", "id", id)
 	c.JSON(http.StatusOK, gin.H{"data": muscleGroup})
 }
 
 // Post method to add a new muscle group to database
 func (msc *MuscleGroupController) Post(c *gin.Context) {
+	logger.Logger.Info("received request to create new muscle group")
 	var muscleGroup models.MuscleGroup
 	if err := c.ShouldBindJSON(&muscleGroup); err != nil {
-		logger.Logger.Error("error parsing request body", "error", err)
+		logger.Logger.Error("error creating muscle group, error parsing request body", "error", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+		return
+	}
+
+	if strings.TrimSpace(muscleGroup.MuscleGroup) == "" {
+		logger.Logger.Error("error creating muscle group, muscle group cannot be empty")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "muscle group name is required"})
 		return
 	}
 
 	muscleGroup.MuscleGroup = strings.ToLower(muscleGroup.MuscleGroup)
 
 	if err := msc.service.Create(&muscleGroup); err != nil {
-		logger.Logger.Error("error saving muscle group to database", "error", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error saving muscle group"})
+		logger.Logger.Error("error creating muscle group, error saving muscle group to database", "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("error creating muscle group, %s", err.Error())})
 		return
 	}
+	logger.Logger.Info("successfully created muscle group", "name", muscleGroup.MuscleGroup)
 	c.JSON(http.StatusCreated, gin.H{"data": muscleGroup})
 }
 
@@ -72,15 +86,22 @@ func (msc *MuscleGroupController) Put(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		logger.Logger.Error("error converting muscle group id to integer", "error", err)
+		logger.Logger.Error("error updating muscle group, string converstion to interger error", "error", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid muscle group ID"})
 		return
 	}
+	logger.Logger.Info("received request to update muscle group by id", "id", id)
 
 	var input models.MuscleGroup
 	if err := c.ShouldBindJSON(&input); err != nil {
-		logger.Logger.Error("error parsing request body", "error", err)
+		logger.Logger.Error("error updating muscle group, error parsing request body", "error", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+		return
+	}
+
+	if strings.TrimSpace(input.MuscleGroup) == "" {
+		logger.Logger.Error("error updating muscle group, muscle group cannot be empty")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "muscle group name is required"})
 		return
 	}
 
@@ -89,9 +110,10 @@ func (msc *MuscleGroupController) Put(c *gin.Context) {
 	muscleGroup, err := msc.service.Update(uint(id), input)
 	if err != nil {
 		logger.Logger.Error("error updating muscle group in database", "error", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error updating muscle group"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("error updating muscle group, %s", err.Error())})
 		return
 	}
+	logger.Logger.Info("successfully updated muscle group by id", "id", id)
 	c.JSON(http.StatusOK, gin.H{"data": muscleGroup})
 }
 
@@ -100,15 +122,17 @@ func (msc *MuscleGroupController) Delete(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		logger.Logger.Error("error converting muscle group id to integer", "error", err)
+		logger.Logger.Error("error deleting muscle group, string converstion to interger error", "error", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid muscle group ID"})
 		return
 	}
+	logger.Logger.Info("received request to delete muscle group by id", "id", id)
 
 	if err := msc.service.Delete(uint(id)); err != nil {
 		logger.Logger.Error("error deleting muscle group", "error", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error deleting muscle group"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("error deleting muscle group, %s", err.Error())})
 		return
 	}
+	logger.Logger.Info("successfully deleted muscle group by id", "id", id)
 	c.JSON(http.StatusOK, gin.H{"message": "muscle group deleted successfully"})
 }

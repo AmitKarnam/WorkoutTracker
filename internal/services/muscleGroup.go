@@ -53,5 +53,9 @@ func (s *muscleGroupService) Update(id uint, input models.MuscleGroup) (*models.
 }
 
 func (s *muscleGroupService) Delete(id uint) error {
+	_, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
 	return s.repo.Delete(id)
 }

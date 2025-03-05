@@ -1,5 +1,9 @@
 .vscode
 .env
 
-# Binary
+# Binaries
 WorkoutTracker
+WorkoutTracker.exe
+
+# Logs
+logs

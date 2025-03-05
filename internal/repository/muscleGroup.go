@@ -36,7 +36,7 @@ func (r *muscleGroupRepository) FindByID(id uint) (*models.MuscleGroup, error) {
 
 func (r *muscleGroupRepository) FindByName(name string) (*models.MuscleGroup, error) {
 	var muscleGroup models.MuscleGroup
-	err := r.db.Where("muscle_group = ?", name).First(&muscleGroup).Error
+	err := r.db.Where("LOWER(muscle_group) = LOWER(?)", name).First(&muscleGroup).Error
 	return &muscleGroup, err
 }
 

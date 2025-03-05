@@ -36,9 +36,10 @@ func initRoutes(engine *gin.Engine, db *gorm.DB) {
 				muscleGroupService := services.NewMuscleGroupService(muscleGroupRepository)
 				muscleGroupController := controllers.NewMuscleGroupController(muscleGroupService)
 				muscleGroup.GET("", muscleGroupController.Get)
+				muscleGroup.GET(":id", muscleGroupController.GetByID)
 				muscleGroup.POST("", muscleGroupController.Post)
-				muscleGroup.PUT(":id", muscleGroupController.Put)
-				muscleGroup.DELETE(":name", muscleGroupController.Delete)
+				muscleGroup.PUT("/update/:id", muscleGroupController.Put)
+				muscleGroup.DELETE("/delete/:id", muscleGroupController.Delete)
 			}
 		}
 	}

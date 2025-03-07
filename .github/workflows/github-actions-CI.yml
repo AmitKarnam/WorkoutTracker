@@ -12,11 +12,11 @@ jobs:
     env:
       MYSQL_ROOT_USER: root
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE_USER: root
-      MYSQL_DATABASE_PASSWORD: root
-      MYSQL_PORT: 3306
-      MYSQL_HOST: 127.0.0.1
-      MYSQL_DATABASE: workout_tracker
+      DATABASE_USER: root
+      DATABASE_PASSWORD: root
+      DATABASE_PORT: 3306
+      DATABASE_HOST: 127.0.0.1
+      DATABASE: workout_tracker
       SERVER_PORT: 9000
     steps:
       - uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
 
       - name: Create Database
         run: |
-          mysql -u $MYSQL_ROOT_USER -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS workout_tracker;"
+          mysql -u $DATABASE_USER -p"$DATABASE_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $DATABASE;"
 
       - name: Build
         run: go build -o ./workout

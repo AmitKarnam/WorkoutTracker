@@ -20,7 +20,7 @@ func init() {
 }
 
 // InitServer funciton is starts up all the essential services required for the server to run
-func InitServer(port string) error {
+func InitServer() error {
 	var eg errgroup.Group
 	// Initialise logger
 	initLogger()
@@ -40,7 +40,7 @@ func InitServer(port string) error {
 	logger.Logger.Info("Migrated database successfully")
 
 	eg.Go(func() error {
-		err := startRESTServer(port)
+		err := startRESTServer()
 		if err != nil {
 			logger.Logger.Error("Failed to start REST server", "error", err)
 			return err
@@ -113,14 +113,9 @@ func migrateDB() error {
 }
 
 // Start server
-func startRESTServer(port string) error {
+func startRESTServer() error {
 	var serverPort string
-	serverPort = port
-
-	envPort := k.String("SERVER_PORT")
-	if envPort != "" {
-		serverPort = envPort
-	}
+	serverPort = k.String("SERVER_PORT")
 	err := server.Start(serverPort)
 	if err != nil {
 		return err

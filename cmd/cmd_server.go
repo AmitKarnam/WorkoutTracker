@@ -6,8 +6,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var port string
-
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
 
@@ -15,7 +13,7 @@ var serverCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := initialiseServer.InitServer(port)
+		err := initialiseServer.InitServer()
 		if err != nil {
 			logger.Logger.Error("Failed to initialise server", "error", err)
 			return err
@@ -27,6 +25,4 @@ var serverCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(serverCmd)
-
-	serverCmd.Flags().StringVarP(&port, "port", "p", "9000", "--port <port> or -p <port>")
 }

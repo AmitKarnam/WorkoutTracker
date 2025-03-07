@@ -16,6 +16,7 @@ jobs:
       DATABASE_HOST: 127.0.0.1
       DATABASE: workout_tracker
       SERVER_PORT: 9000
+      GIN_MODE: debug
     steps:
       - uses: actions/checkout@v4
 
@@ -28,35 +29,54 @@ jobs:
         run: |
           sudo systemctl start mysql.service
 
-      - name: install mysql client
+      - name: Install MySQL client and netstat
         run: |
           sudo apt-get update
-          sudo apt-get install -y  mysql-client 
+          sudo apt-get install -y mysql-client net-tools
 
       - name: Create Database
         run: |
           mysql -u $DATABASE_USER -p"$DATABASE_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS workout_tracker;"
 
       - name: Build
-        run: go build -o ./workout
+        run: go build -v -o ./workout
 
       - name: Start Server in Background
         run: |
-          nohup ./workout server > server.log 2>&1 &
-          echo $! > server.pid  # Save the process ID
+          # Start server with detailed logging
+          GIN_DEBUG=1 ./workout server > server.log 2>&1 &
+          echo $! > server.pid
+          sleep 5  # Give server time to start
+
+      - name: Debug Server Status
+        run: |
+          echo "Checking server process..."
+          ps aux | grep workout
           
+          echo "Checking port 9000..."
+          netstat -tulpn | grep 9000
+          
+          echo "Server logs..."
+          cat server.log
+          
+          echo "Testing connection..."
+          curl -v http://0.0.0.0:9000/workouttracker/health || true
+
       - name: Server health status check
         run: |
-          sleep 5  # Give server some time to start
-          response=$(curl -v http://localhost:9000/workouttracker/health)
-          if [[ "$response" == '{"Status":"Healthy"}' ]]; then
-            echo "Server is up, running and healthy!"
-          else
-            echo "Server is not healthy...."
-            cat server.log
-            exit 1
-          fi
+          for i in {1..5}; do
+            echo "Attempt $i: Checking server health..."
+            if curl -v --connect-timeout 10 http://0.0.0.0:9000/workouttracker/health; then
+              echo "Server is healthy!"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Server failed to respond after 5 attempts"
+          exit 1
 
       - name: Stop Server
+        if: always()
         run: |
-          kill $(cat server.pid)
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) || true

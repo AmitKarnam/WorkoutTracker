@@ -10,8 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      MYSQL_ROOT_USER: root
-      MYSQL_ROOT_PASSWORD: root
       DATABASE_USER: root
       DATABASE_PASSWORD: root
       DATABASE_PORT: 3306
@@ -37,7 +35,7 @@ jobs:
 
       - name: Create Database
         run: |
-          mysql -u $DATABASE_USER -p"$DATABASE_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $DATABASE;"
+          mysql -u $DATABASE_USER -p"$DATABASE_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS workout_tracker;"
 
       - name: Build
         run: go build -o ./workout

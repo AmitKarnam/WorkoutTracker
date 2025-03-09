@@ -62,7 +62,7 @@ func initLogger() {
 func loadEnv(filepath string) error {
 	// Load environment variables
 	if err := godotenv.Load(filepath); err != nil {
-		return err
+		logger.Logger.Info("No .env file found, proceeding with environment variables")
 	}
 
 	// Load environment variables into koanf

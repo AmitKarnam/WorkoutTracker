@@ -51,7 +51,5 @@ jobs:
           curl -f http://0.0.0.0:9000/workouttracker/health
 
       - name: Stop Server
-        if: always()
         run: |
-          if [ -f server.pid ]; then
-            kill $(cat server.pid)
+          kill $(cat server.pid)

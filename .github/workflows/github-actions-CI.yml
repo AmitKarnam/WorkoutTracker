@@ -52,10 +52,7 @@ jobs:
         run: |
           echo "Checking server process..."
           ps aux | grep workout
-          
-          echo "Checking port 9000..."
-          netstat -tulpn | grep 9000
-          
+                    
           echo "Server logs..."
           cat server.log
           

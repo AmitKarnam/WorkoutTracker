@@ -16,7 +16,6 @@ jobs:
       DATABASE_HOST: 127.0.0.1
       DATABASE: workout_tracker
       SERVER_PORT: 9000
-      GIN_MODE: debug
     steps:
       - uses: actions/checkout@v4
 
@@ -29,48 +28,27 @@ jobs:
         run: |
           sudo systemctl start mysql.service
 
-      - name: Install MySQL client and netstat
+      - name: Install MySQL client
         run: |
           sudo apt-get update
-          sudo apt-get install -y mysql-client net-tools
+          sudo apt-get install -y mysql-client
 
       - name: Create Database
         run: |
-          mysql -u $DATABASE_USER -p"$DATABASE_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS workout_tracker;"
+          mysql -u $DATABASE_USER -p"$DATABASE_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $DATABASE;"
 
       - name: Build
         run: go build -v -o ./workout
 
       - name: Start Server in Background
         run: |
-          # Start server with detailed logging
-          GIN_DEBUG=1 ./workout server > server.log 2>&1 &
+          ./workout server > /dev/null 2>&1 &
           echo $! > server.pid
-          sleep 5  # Give server time to start
+          sleep 5
 
-      - name: Debug Server Status
+      - name: Health Check
         run: |
-          echo "Checking server process..."
-          ps aux | grep workout
-                    
-          echo "Server logs..."
-          cat server.log
-          
-          echo "Testing connection..."
-          curl -v http://0.0.0.0:9000/workouttracker/health || true
-
-      - name: Server health status check
-        run: |
-          for i in {1..5}; do
-            echo "Attempt $i: Checking server health..."
-            if curl -v --connect-timeout 10 http://0.0.0.0:9000/workouttracker/health; then
-              echo "Server is healthy!"
-              exit 0
-            fi
-            sleep 5
-          done
-          echo "Server failed to respond after 5 attempts"
-          exit 1
+          curl -f http://0.0.0.0:9000/workouttracker/health
 
       - name: Stop Server
         if: always()

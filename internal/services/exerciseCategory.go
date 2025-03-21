@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/AmitKarnam/WorkoutTracker/internal/models"
@@ -8,10 +9,10 @@ import (
 )
 
 type ExerciseCategoryService interface {
-	GetAll() ([]models.ExerciseCategory, error)
-	GetByID(id uint) (*models.ExerciseCategory, error)
-	Create(exerciseCategory *models.ExerciseCategory) error
-	Delete(id uint) error
+	GetAll(ctx context.Context) ([]models.ExerciseCategory, error)
+	GetByID(ctx context.Context, id uint) (*models.ExerciseCategory, error)
+	Create(ctx context.Context, exerciseCategory *models.ExerciseCategory) error
+	Delete(ctx context.Context, id uint) error
 }
 
 type exerciseCategoryService struct {
@@ -22,26 +23,46 @@ func NewExerciseCategoryService(repo repository.ExerciseCategoryRepository) Exer
 	return &exerciseCategoryService{repo: repo}
 }
 
-func (s *exerciseCategoryService) GetAll() ([]models.ExerciseCategory, error) {
-	return s.repo.FindAll()
-}
-
-func (s *exerciseCategoryService) GetByID(id uint) (*models.ExerciseCategory, error) {
-	return s.repo.FindByID(id)
-}
-
-func (s *exerciseCategoryService) Create(exerciseCategory *models.ExerciseCategory) error {
-	existing, err := s.repo.FindByName(exerciseCategory.Category)
-	if err == nil && existing != nil {
-		return fmt.Errorf("exercise category already exists")
+func (s *exerciseCategoryService) GetAll(ctx context.Context) ([]models.ExerciseCategory, error) {
+	select {
+	case <-ctx.Done():
+		return nil, fmt.Errorf("request canceled: %v", ctx.Err())
+	default:
+		return s.repo.FindAll(ctx)
 	}
-	return s.repo.Create(exerciseCategory)
 }
 
-func (s *exerciseCategoryService) Delete(id uint) error {
-	_, err := s.repo.FindByID(id)
-	if err != nil {
-		return err
+func (s *exerciseCategoryService) GetByID(ctx context.Context, id uint) (*models.ExerciseCategory, error) {
+	select {
+	case <-ctx.Done():
+		return nil, fmt.Errorf("request canceled: %v", ctx.Err())
+	default:
+		return s.repo.FindByID(ctx, id)
 	}
-	return s.repo.Delete(id)
+}
+
+func (s *exerciseCategoryService) Create(ctx context.Context, exerciseCategory *models.ExerciseCategory) error {
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("request canceled: %v", ctx.Err())
+	default:
+		existing, err := s.repo.FindByName(ctx, exerciseCategory.Category)
+		if err == nil && existing != nil {
+			return fmt.Errorf("exercise category already exists")
+		}
+		return s.repo.Create(ctx, exerciseCategory)
+	}
+}
+
+func (s *exerciseCategoryService) Delete(ctx context.Context, id uint) error {
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("request canceled: %v", ctx.Err())
+	default:
+		_, err := s.repo.FindByID(ctx, id)
+		if err != nil {
+			return err
+		}
+		return s.repo.Delete(ctx, id)
+	}
 }

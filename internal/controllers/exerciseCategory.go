@@ -30,7 +30,8 @@ func NewExerciseCategoryController(service services.ExerciseCategoryService) Exe
 // Get method to get all exercise categories
 func (e *exerciseCategoryController) Get(c *gin.Context) {
 	logger.Logger.Info("received request to get all exercise categories")
-	exerciseCategories, err := e.service.GetAll()
+	ctx := c.Request.Context()
+	exerciseCategories, err := e.service.GetAll(ctx)
 	if err != nil {
 		logger.Logger.Error("error fetching exercise categories", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error fetching exercise categories"})
@@ -42,6 +43,8 @@ func (e *exerciseCategoryController) Get(c *gin.Context) {
 
 // GetByID methods gets exercise category by id
 func (e *exerciseCategoryController) GetByID(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -51,7 +54,7 @@ func (e *exerciseCategoryController) GetByID(c *gin.Context) {
 	}
 	logger.Logger.Info("received request to fetch exercise category by id", "id", id)
 
-	exerciseCategory, err := e.service.GetByID(uint(id))
+	exerciseCategory, err := e.service.GetByID(ctx, uint(id))
 	if err != nil {
 		logger.Logger.Error("error fetching exercise group by id", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("error fetching exercise category by id, %s", err.Error())})
@@ -64,6 +67,7 @@ func (e *exerciseCategoryController) GetByID(c *gin.Context) {
 // Post method is used to create exercise category
 func (e *exerciseCategoryController) Post(c *gin.Context) {
 	logger.Logger.Info("received request to create new exercise category")
+	ctx := c.Request.Context()
 	var exerciseCategory models.ExerciseCategory
 	if err := c.ShouldBindJSON(&exerciseCategory); err != nil {
 		logger.Logger.Error("error creating exercise category, error parsing request body", "error", err)
@@ -79,7 +83,7 @@ func (e *exerciseCategoryController) Post(c *gin.Context) {
 
 	exerciseCategory.Category = strings.ToLower(exerciseCategory.Category)
 
-	err := e.service.Create(&exerciseCategory)
+	err := e.service.Create(ctx, &exerciseCategory)
 	if err != nil {
 		logger.Logger.Error("error creating exercise category, error saving exercise category to database", "error", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("error creating exercise category, %s", err.Error())})
@@ -90,6 +94,7 @@ func (e *exerciseCategoryController) Post(c *gin.Context) {
 }
 
 func (e *exerciseCategoryController) Delete(c *gin.Context) {
+	ctx := c.Request.Context()
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -99,7 +104,7 @@ func (e *exerciseCategoryController) Delete(c *gin.Context) {
 	}
 	logger.Logger.Info("received request to delete exercise category by id", "id", id)
 
-	if err := e.service.Delete(uint(id)); err != nil {
+	if err := e.service.Delete(ctx, uint(id)); err != nil {
 		logger.Logger.Error("error deleting exercise category", "error", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("error deleting exercise category, %s", err.Error())})
 		return

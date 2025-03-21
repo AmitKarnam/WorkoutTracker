@@ -1,16 +1,18 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/AmitKarnam/WorkoutTracker/internal/models"
 	"gorm.io/gorm"
 )
 
 type ExerciseCategoryRepository interface {
-	FindAll() ([]models.ExerciseCategory, error)
-	FindByID(id uint) (*models.ExerciseCategory, error)
-	FindByName(name string) (*models.ExerciseCategory, error)
-	Create(exerciseCategory *models.ExerciseCategory) error
-	Delete(id uint) error
+	FindAll(ctx context.Context) ([]models.ExerciseCategory, error)
+	FindByID(ctx context.Context, id uint) (*models.ExerciseCategory, error)
+	FindByName(ctx context.Context, name string) (*models.ExerciseCategory, error)
+	Create(ctx context.Context, exerciseCategory *models.ExerciseCategory) error
+	Delete(ctx context.Context, id uint) error
 }
 
 type exerciseCategoryRepository struct {
@@ -21,28 +23,28 @@ func NewExerciseCategoryRepository(db *gorm.DB) ExerciseCategoryRepository {
 	return &exerciseCategoryRepository{db: db}
 }
 
-func (r *exerciseCategoryRepository) FindAll() ([]models.ExerciseCategory, error) {
+func (r *exerciseCategoryRepository) FindAll(ctx context.Context) ([]models.ExerciseCategory, error) {
 	var exerciseCategories []models.ExerciseCategory
-	err := r.db.Find(&exerciseCategories).Error
+	err := r.db.WithContext(ctx).Find(&exerciseCategories).Error
 	return exerciseCategories, err
 }
 
-func (r *exerciseCategoryRepository) FindByID(id uint) (*models.ExerciseCategory, error) {
+func (r *exerciseCategoryRepository) FindByID(ctx context.Context, id uint) (*models.ExerciseCategory, error) {
 	var exerciseCategory models.ExerciseCategory
-	err := r.db.First(&exerciseCategory, id).Error
+	err := r.db.WithContext(ctx).First(&exerciseCategory, id).Error
 	return &exerciseCategory, err
 }
 
-func (r *exerciseCategoryRepository) FindByName(name string) (*models.ExerciseCategory, error) {
+func (r *exerciseCategoryRepository) FindByName(ctx context.Context, name string) (*models.ExerciseCategory, error) {
 	var exerciseCategory models.ExerciseCategory
-	err := r.db.Where("LOWER(category) = LOWER(?)", name).First(&exerciseCategory).Error
+	err := r.db.WithContext(ctx).Where("LOWER(category) = LOWER(?)", name).First(&exerciseCategory).Error
 	return &exerciseCategory, err
 }
 
-func (r *exerciseCategoryRepository) Create(exerciseCategory *models.ExerciseCategory) error {
-	return r.db.Create(exerciseCategory).Error
+func (r *exerciseCategoryRepository) Create(ctx context.Context, exerciseCategory *models.ExerciseCategory) error {
+	return r.db.WithContext(ctx).Create(exerciseCategory).Error
 }
 
-func (r *exerciseCategoryRepository) Delete(id uint) error {
-	return r.db.Delete(&models.ExerciseCategory{}, id).Error
+func (r *exerciseCategoryRepository) Delete(ctx context.Context, id uint) error {
+	return r.db.WithContext(ctx).Delete(&models.ExerciseCategory{}, id).Error
 }

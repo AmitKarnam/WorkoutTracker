@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/AmitKarnam/WorkoutTracker/internal/models"
@@ -8,11 +9,11 @@ import (
 )
 
 type MuscleGroupService interface {
-	GetAll() ([]models.MuscleGroup, error)
-	GetByID(id uint) (*models.MuscleGroup, error)
-	Create(muscleGroup *models.MuscleGroup) error
-	Update(id uint, input models.MuscleGroup) (*models.MuscleGroup, error)
-	Delete(id uint) error
+	GetAll(ctx context.Context) ([]models.MuscleGroup, error)
+	GetByID(ctx context.Context, id uint) (*models.MuscleGroup, error)
+	Create(ctx context.Context, muscleGroup *models.MuscleGroup) error
+	Update(ctx context.Context, id uint, input models.MuscleGroup) (*models.MuscleGroup, error)
+	Delete(ctx context.Context, id uint) error
 }
 
 type muscleGroupService struct {
@@ -23,39 +24,64 @@ func NewMuscleGroupService(repo repository.MuscleGroupRepository) MuscleGroupSer
 	return &muscleGroupService{repo: repo}
 }
 
-func (s *muscleGroupService) GetAll() ([]models.MuscleGroup, error) {
-	return s.repo.FindAll()
-}
-
-func (s *muscleGroupService) GetByID(id uint) (*models.MuscleGroup, error) {
-	return s.repo.FindByID(id)
-}
-
-func (s *muscleGroupService) Create(muscleGroup *models.MuscleGroup) error {
-	existing, err := s.repo.FindByName(muscleGroup.MuscleGroup)
-	if err == nil && existing != nil {
-		return fmt.Errorf("muscle group already exists")
+func (s *muscleGroupService) GetAll(ctx context.Context) ([]models.MuscleGroup, error) {
+	select {
+	case <-ctx.Done():
+		return nil, fmt.Errorf("request canceled: %v", ctx.Err())
+	default:
+		return s.repo.FindAll(ctx)
 	}
-	return s.repo.Create(muscleGroup)
 }
 
-func (s *muscleGroupService) Update(id uint, input models.MuscleGroup) (*models.MuscleGroup, error) {
-	muscleGroup, err := s.repo.FindByID(id)
-	if err != nil {
-		return nil, err
+func (s *muscleGroupService) GetByID(ctx context.Context, id uint) (*models.MuscleGroup, error) {
+	select {
+	case <-ctx.Done():
+		return nil, fmt.Errorf("request canceled: %v", ctx.Err())
+	default:
+		return s.repo.FindByID(ctx, id)
 	}
-
-	muscleGroup.MuscleGroup = input.MuscleGroup
-	muscleGroup.Description = input.Description
-
-	err = s.repo.Update(muscleGroup)
-	return muscleGroup, err
 }
 
-func (s *muscleGroupService) Delete(id uint) error {
-	_, err := s.repo.FindByID(id)
-	if err != nil {
-		return err
+func (s *muscleGroupService) Create(ctx context.Context, muscleGroup *models.MuscleGroup) error {
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("request canceled: %v", ctx.Err())
+	default:
+		existing, err := s.repo.FindByName(ctx, muscleGroup.MuscleGroup)
+		if err == nil && existing != nil {
+			return fmt.Errorf("muscle group already exists")
+		}
+		return s.repo.Create(ctx, muscleGroup)
 	}
-	return s.repo.Delete(id)
+}
+
+func (s *muscleGroupService) Update(ctx context.Context, id uint, input models.MuscleGroup) (*models.MuscleGroup, error) {
+	select {
+	case <-ctx.Done():
+		return nil, fmt.Errorf("request canceled: %v", ctx.Err())
+	default:
+		muscleGroup, err := s.repo.FindByID(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+
+		muscleGroup.MuscleGroup = input.MuscleGroup
+		muscleGroup.Description = input.Description
+
+		err = s.repo.Update(ctx, muscleGroup)
+		return muscleGroup, err
+	}
+}
+
+func (s *muscleGroupService) Delete(ctx context.Context, id uint) error {
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("request canceled: %v", ctx.Err())
+	default:
+		_, err := s.repo.FindByID(ctx, id)
+		if err != nil {
+			return err
+		}
+		return s.repo.Delete(ctx, id)
+	}
 }

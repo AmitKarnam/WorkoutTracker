@@ -23,11 +23,13 @@ func initRoutes(engine *gin.Engine, db *gorm.DB) {
 
 			{
 				exerciseCategory := versionGroup.Group("/exercisecategories")
-				exerciseCategoryController := controllers.ExerciseCategoryController{}
+				exerciseCategoryRepository := repository.NewExerciseCategoryRepository(db)
+				exerciseCategoryServices := services.NewExerciseCategoryService(exerciseCategoryRepository)
+				exerciseCategoryController := controllers.NewExerciseCategoryController(exerciseCategoryServices)
 				exerciseCategory.GET("", exerciseCategoryController.Get)
 				exerciseCategory.GET(":id", exerciseCategoryController.GetByID)
 				exerciseCategory.POST("", exerciseCategoryController.Post)
-				exerciseCategory.DELETE(":id", exerciseCategoryController.Delete)
+				exerciseCategory.DELETE("/delete/:id", exerciseCategoryController.Delete)
 			}
 
 			{

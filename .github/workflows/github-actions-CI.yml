@@ -89,11 +89,13 @@ jobs:
         cd DependencyCheck/cli/target/release/bin/
         chmod +x dependency-check.sh
         ./dependency-check.sh \
-          --scan ../../../../../ \
+          --scan ../../../../../go.mod ../../../../../go.sum \
           --out ../../../../../dependency-check-report \
           --format "HTML,JSON,SARIF" \
           --enableExperimental \
+          --enableRetired \
           --failOnCVSS 7 \
+          --project "WorkoutTracker" \
           --suppression ../../../../../dependency-check-suppression.xml
       env:
         NVD_API_KEY: ${{ secrets.NVD_API_KEY }}

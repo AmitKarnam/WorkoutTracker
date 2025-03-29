@@ -84,7 +84,7 @@ jobs:
       run: |
         git clone https://github.com/dependency-check/DependencyCheck.git
         cd DependencyCheck
-        git checkout Version-8.4.0
+        git checkout main
         mvn install -DskipTests
 
     - name: Run Dependency-Check CLI

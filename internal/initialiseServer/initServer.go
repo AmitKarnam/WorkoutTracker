@@ -102,7 +102,7 @@ func migrateDB() error {
 
 	logger.Logger.Info("Starting database migration...")
 
-	err = dbConn.AutoMigrate(&models.ExerciseCategory{}, &models.MuscleGroup{}, &models.StrengthExercise{}, &models.StrengthWorkout{}, &models.CoreExercise{}, &models.CoreWorkout{}, &models.YogaExercise{}, &models.YogaWorkout{})
+	err = dbConn.AutoMigrate(&models.MuscleGroup{}, &models.StrengthExercise{}, &models.StrengthWorkout{}, &models.CoreExercise{}, &models.CoreWorkout{}, &models.YogaExercise{}, &models.YogaWorkout{})
 	if err != nil {
 		return err
 	}

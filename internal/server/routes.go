@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/AmitKarnam/WorkoutTracker/internal/controllers"
+	"github.com/AmitKarnam/WorkoutTracker/internal/controller"
 	"github.com/AmitKarnam/WorkoutTracker/internal/repository"
 	"github.com/AmitKarnam/WorkoutTracker/internal/services"
 	"gorm.io/gorm"
@@ -14,7 +14,7 @@ func initRoutes(engine *gin.Engine, db *gorm.DB) {
 	{
 		// Health endpoint
 		health := serviceGroup.Group("/health")
-		healthController := controllers.HealthController{}
+		healthController := controller.HealthController{}
 		health.GET("", healthController.Get)
 
 		apiGroup := serviceGroup.Group("/api")
@@ -22,21 +22,10 @@ func initRoutes(engine *gin.Engine, db *gorm.DB) {
 			versionGroup := apiGroup.Group("/v1")
 
 			{
-				exerciseCategory := versionGroup.Group("/exercisecategories")
-				exerciseCategoryRepository := repository.NewExerciseCategoryRepository(db)
-				exerciseCategoryServices := services.NewExerciseCategoryService(exerciseCategoryRepository)
-				exerciseCategoryController := controllers.NewExerciseCategoryController(exerciseCategoryServices)
-				exerciseCategory.GET("", exerciseCategoryController.Get)
-				exerciseCategory.GET(":id", exerciseCategoryController.GetByID)
-				exerciseCategory.POST("", exerciseCategoryController.Post)
-				exerciseCategory.DELETE("/delete/:id", exerciseCategoryController.Delete)
-			}
-
-			{
 				muscleGroup := versionGroup.Group("/musclegroups")
 				muscleGroupRepository := repository.NewMuscleGroupRepository(db)
 				muscleGroupService := services.NewMuscleGroupService(muscleGroupRepository)
-				muscleGroupController := controllers.NewMuscleGroupController(muscleGroupService)
+				muscleGroupController := controller.NewMuscleGroupController(muscleGroupService)
 				muscleGroup.GET("", muscleGroupController.Get)
 				muscleGroup.GET(":id", muscleGroupController.GetByID)
 				muscleGroup.POST("", muscleGroupController.Post)

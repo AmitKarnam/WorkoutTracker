@@ -64,3 +64,36 @@ jobs:
       - name: Stop Server
         run: |
           kill $(cat server.pid)
+  depedancy-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Java and Maven
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+        cache: 'maven'
+
+    - name: Build Dependency-Check from Source
+      run: |
+        mvn -s settings.xml install -DskipTests=true
+
+    - name: Run Dependency-Check CLI
+      run: |
+        ./cli/target/release/bin/dependency-check.sh \
+          --scan . \
+          --out ./dependency-check-report \
+          --format HTML,JSON,SARIF
+      env:
+        NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+
+    - name: Upload Dependency-Check Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: dependency-check-report
+        path: ./dependency-check-report/*
+
+  

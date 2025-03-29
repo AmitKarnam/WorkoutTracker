@@ -1,4 +1,4 @@
-package controllers
+package controller
 
 import (
 	"fmt"
@@ -119,14 +119,14 @@ func (msc *muscleGroupController) Put(c *gin.Context) {
 
 	input.MuscleGroup = strings.ToLower(input.MuscleGroup)
 
-	muscleGroup, err := msc.service.Update(ctx, uint(id), input)
+	err = msc.service.Update(ctx, uint(id), input)
 	if err != nil {
 		logger.Logger.Error("error updating muscle group in database", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("error updating muscle group, %s", err.Error())})
 		return
 	}
 	logger.Logger.Info("successfully updated muscle group by id", "id", id)
-	c.JSON(http.StatusOK, gin.H{"data": muscleGroup})
+	c.JSON(http.StatusOK, gin.H{"message": "muscle group updated successfully"})
 }
 
 // Delete method to delete an existing muscle group from database

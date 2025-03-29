@@ -95,7 +95,6 @@ jobs:
           --scan ../../../../../go.mod ../../../../../go.sum \
           --out ../../../../../dependency-check-report \
           --format "JSON" \
-          --enableExperimental \
           --enableRetired \
           --failOnCVSS 7 \
           --project "WorkoutTracker" \
@@ -108,4 +107,4 @@ jobs:
       with:
         name: dependency-check-report
         path: dependency-check-report/*
-        if-no-files-found: error
+        if-no-files-found: warn

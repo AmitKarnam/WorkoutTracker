@@ -99,7 +99,8 @@ jobs:
           --enableRetired \
           --failOnCVSS 7 \
           --project "WorkoutTracker" \
-          --suppression ../../../../../dependency-check-suppression.xml
+          --suppression ../../../../../dependency-check-suppression.xml \
+          --nvdApiKey ${{ secrets.NVD_API_KEY }}
       env:
         NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 

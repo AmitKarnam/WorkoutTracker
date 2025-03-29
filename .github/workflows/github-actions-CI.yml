@@ -98,14 +98,8 @@ jobs:
       env:
         NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
-    - name: Download upload-artifact action
-      uses: actions/download-action@v3
-      with:
-        name: upload-artifact
-        path: .github/actions
-
     - name: Upload Dependency-Check Report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dependency-check-report
         path: dependency-check-report/*

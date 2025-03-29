@@ -94,7 +94,7 @@ jobs:
         ./dependency-check.sh \
           --scan ../../../../../go.mod ../../../../../go.sum \
           --out ../../../../../dependency-check-report \
-          --format "HTML,JSON,SARIF" \
+          --format "JSON" \
           --enableExperimental \
           --enableRetired \
           --failOnCVSS 7 \

@@ -64,7 +64,7 @@ jobs:
       - name: Stop Server
         run: |
           kill $(cat server.pid)
-  depedancy-check:
+  dependency-check:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repository
@@ -77,16 +77,24 @@ jobs:
         java-version: '11'
         cache: 'maven'
 
-    - name: Build Dependency-Check from Source
+    - name: Clone and Build Dependency-Check
       run: |
-        mvn -s settings.xml install -DskipTests=true
+        git clone https://github.com/dependency-check/DependencyCheck.git
+        cd DependencyCheck
+        git checkout Version-8.4.0
+        mvn install -DskipTests
 
     - name: Run Dependency-Check CLI
       run: |
-        ./cli/target/release/bin/dependency-check.sh \
-          --scan . \
-          --out ./dependency-check-report \
-          --format HTML,JSON,SARIF
+        cd DependencyCheck/cli/target/release/bin/
+        chmod +x dependency-check.sh
+        ./dependency-check.sh \
+          --scan ../../../../../ \
+          --out ../../../../../dependency-check-report \
+          --format "HTML,JSON,SARIF" \
+          --enableExperimental \
+          --failOnCVSS 7 \
+          --suppression ../../../../../dependency-check-suppression.xml
       env:
         NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
@@ -94,6 +102,6 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: dependency-check-report
-        path: ./dependency-check-report/*
+        path: dependency-check-report/*
 
-  
+

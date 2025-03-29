@@ -70,12 +70,15 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Set up Java and Maven
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '11'
-        cache: 'maven'
+    - name: Install Java and Maven
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y openjdk-11-jdk maven
+
+    - name: Verify Java and Maven Installation
+      run: |
+        java -version
+        mvn -version
 
     - name: Clone and Build Dependency-Check
       run: |

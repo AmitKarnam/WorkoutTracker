@@ -49,7 +49,7 @@ jobs:
       - name: Health Check
         run: |
           sleep 10  # Give server some time to start
-          response=$(curl -v http://localhost:9000/workouttracker/health)
+          response=$(curl -v http://localhost:9000/workout-tracker/health)
           if [[ "$response" == '{"Status":"Healthy"}' ]]; then
             echo "Server is up, running and healthy!"
           else

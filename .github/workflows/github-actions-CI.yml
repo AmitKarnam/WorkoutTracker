@@ -54,10 +54,6 @@ jobs:
             echo "Server is up, running and healthy!"
           else
             echo "Server is not healthy...."
-            
-            echo "Printing Server Logs..."
-            cat server.log
-            
             exit 1
           fi
 

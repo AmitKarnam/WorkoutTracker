@@ -11,8 +11,8 @@ type CoreExerciseRepository interface {
 	FindAll(ctx context.Context) (*[]models.CoreExercise, error)
 	FindByID(ctx context.Context, id uint) (*models.CoreExercise, error)
 	FindByName(ctx context.Context, name string) (*models.CoreExercise, error)
-	Create(ctx context.Context, strengthExercise *models.CoreExercise) error
-	Update(ctx context.Context, strengthExercise *models.CoreExercise) error
+	Create(ctx context.Context, coreExercise *models.CoreExercise) error
+	Update(ctx context.Context, coreExercise *models.CoreExercise) error
 	Delete(ctx context.Context, id uint) error
 }
 

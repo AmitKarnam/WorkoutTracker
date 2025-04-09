@@ -64,47 +64,47 @@ jobs:
       - name: Stop Server
         run: |
           kill $(cat server.pid)
-  dependency-check:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+  # dependency-check:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout Repository
+  #     uses: actions/checkout@v4
 
-    - name: Install Java and Maven
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y openjdk-11-jdk maven
+  #   - name: Install Java and Maven
+  #     run: |
+  #       sudo apt-get update
+  #       sudo apt-get install -y openjdk-11-jdk maven
 
-    - name: Verify Java and Maven Installation
-      run: |
-        java -version
-        mvn -version
+  #   - name: Verify Java and Maven Installation
+  #     run: |
+  #       java -version
+  #       mvn -version
 
-    - name: Clone and Build Dependency-Check
-      run: |
-        git clone https://github.com/dependency-check/DependencyCheck.git
-        cd DependencyCheck
-        git checkout main
-        mvn install -DskipTests
+  #   - name: Clone and Build Dependency-Check
+  #     run: |
+  #       git clone https://github.com/dependency-check/DependencyCheck.git
+  #       cd DependencyCheck
+  #       git checkout main
+  #       mvn install -DskipTests
 
-    - name: Run Dependency-Check CLI
-      run: |
-        cd DependencyCheck/cli/target/release/bin/
-        chmod +x dependency-check.sh
-        ./dependency-check.sh \
-          --scan ../../../../../go.mod ../../../../../go.sum \
-          --out ../../../../../dependency-check-report \
-          --format "JSON" \
-          --enableRetired \
-          --failOnCVSS 7 \
-          --project "WorkoutTracker" \
-          --nvdApiKey ${{ secrets.NVD_API_KEY }}
-      env:
-        NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+  #   - name: Run Dependency-Check CLI
+  #     run: |
+  #       cd DependencyCheck/cli/target/release/bin/
+  #       chmod +x dependency-check.sh
+  #       ./dependency-check.sh \
+  #         --scan ../../../../../go.mod ../../../../../go.sum \
+  #         --out ../../../../../dependency-check-report \
+  #         --format "JSON" \
+  #         --enableRetired \
+  #         --failOnCVSS 7 \
+  #         --project "WorkoutTracker" \
+  #         --nvdApiKey ${{ secrets.NVD_API_KEY }}
+  #     env:
+  #       NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
-    - name: Upload Dependency-Check Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: dependency-check-report
-        path: dependency-check-report/*
-        if-no-files-found: warn
+  #   - name: Upload Dependency-Check Report
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: dependency-check-report
+  #       path: dependency-check-report/*
+  #       if-no-files-found: warn

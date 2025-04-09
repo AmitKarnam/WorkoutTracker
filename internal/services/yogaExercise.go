@@ -16,10 +16,10 @@ type YogaExerciseService interface {
 }
 
 type yogaExerciseService struct {
-	repo *repository.StrengthExerciseRepository
+	repo repository.YogaExerciseRepository
 }
 
-func NewYogaExerciseService(repo *repository.StrengthExerciseRepository) YogaExerciseService {
+func NewYogaExerciseService(repo repository.YogaExerciseRepository) YogaExerciseService {
 	return &yogaExerciseService{repo: repo}
 }
 

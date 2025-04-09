@@ -16,10 +16,10 @@ type CoreExerciseService interface {
 }
 
 type coreExerciseService struct {
-	repo *repository.StrengthExerciseRepository
+	repo repository.CoreExerciseRepository
 }
 
-func NewCoreExerciseService(repo *repository.StrengthExerciseRepository) CoreExerciseService {
+func NewCoreExerciseService(repo repository.CoreExerciseRepository) CoreExerciseService {
 	return &coreExerciseService{repo: repo}
 }
 

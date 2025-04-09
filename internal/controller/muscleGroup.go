@@ -13,11 +13,11 @@ import (
 )
 
 type MuscleGroupController interface {
-	Get(*gin.Context)
-	GetByID(*gin.Context)
-	Post(*gin.Context)
-	Put(*gin.Context)
-	Delete(*gin.Context)
+	Get(c *gin.Context)
+	GetByID(c *gin.Context)
+	Post(c *gin.Context)
+	Put(c *gin.Context)
+	Delete(c *gin.Context)
 }
 
 type muscleGroupController struct {

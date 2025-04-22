@@ -22,6 +22,16 @@ func initRoutes(engine *gin.Engine, db *gorm.DB) {
 			versionGroup := apiGroup.Group("/v1")
 
 			{
+				authRepo := repository.NewUserRepository(db)
+				authService := services.NewAuthService(authRepo)
+				authController := controller.NewAuthController(authService)
+
+				authGroup := versionGroup.Group("/auth")
+				authGroup.GET("/google/login", authController.GoogleLogin)
+				authGroup.GET("/google/callback", authController.GoogleCallback)
+			}
+
+			{
 				muscleGroup := versionGroup.Group("/muscle-groups")
 				muscleGroupRepository := repository.NewMuscleGroupRepository(db)
 				muscleGroupService := services.NewMuscleGroupService(muscleGroupRepository)

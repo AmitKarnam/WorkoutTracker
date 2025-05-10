@@ -13,19 +13,19 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-type AuthService interface {
+type GoogleAuthService interface {
 	GetGoogleOAuthURL(state string) string
 	HandleGoogleCallback(ctx context.Context, code string) (*models.User, error)
 }
 
-type authService struct {
+type googleAuthService struct {
 	userRepo repository.UserRepository
 	config   *oauth2.Config
 }
 
-func NewAuthService(userRepo repository.UserRepository) AuthService {
+func NewGoogleAuthService(userRepo repository.UserRepository) GoogleAuthService {
 	googleConfig := config.GetGoogleOAuthConfig()
-	return &authService{
+	return &googleAuthService{
 		userRepo: userRepo,
 		config: &oauth2.Config{
 			ClientID:     googleConfig.ClientID,
@@ -37,11 +37,11 @@ func NewAuthService(userRepo repository.UserRepository) AuthService {
 	}
 }
 
-func (s *authService) GetGoogleOAuthURL(state string) string {
+func (s *googleAuthService) GetGoogleOAuthURL(state string) string {
 	return s.config.AuthCodeURL(state, oauth2.AccessTypeOffline)
 }
 
-func (s *authService) HandleGoogleCallback(ctx context.Context, code string) (*models.User, error) {
+func (s *googleAuthService) HandleGoogleCallback(ctx context.Context, code string) (*models.User, error) {
 	token, err := s.config.Exchange(ctx, code)
 	if err != nil {
 		return nil, fmt.Errorf("failed to exchange token: %v", err)
@@ -70,6 +70,12 @@ func (s *authService) HandleGoogleCallback(ctx context.Context, code string) (*m
 	user := &models.User{
 		Email: userInfo.Email,
 		Name:  userInfo.Name,
+		Role:  models.Customer,
 	}
-	return s.userRepo.FindOrCreateUser(user)
+	userInstance, err := s.userRepo.FindOrCreateUser(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return userInstance, nil
 }

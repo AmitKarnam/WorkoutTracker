@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/AmitKarnam/WorkoutTracker/internal/controller"
+	"github.com/AmitKarnam/WorkoutTracker/internal/controller/oauth/google"
 	"github.com/AmitKarnam/WorkoutTracker/internal/repository"
 	"github.com/AmitKarnam/WorkoutTracker/internal/services"
 	"gorm.io/gorm"
@@ -22,13 +23,22 @@ func initRoutes(engine *gin.Engine, db *gorm.DB) {
 			versionGroup := apiGroup.Group("/v1")
 
 			{
-				authRepo := repository.NewUserRepository(db)
-				authService := services.NewAuthService(authRepo)
-				authController := controller.NewAuthController(authService)
-
 				authGroup := versionGroup.Group("/auth")
-				authGroup.GET("/google/login", authController.GoogleLogin)
-				authGroup.GET("/google/callback", authController.GoogleCallback)
+				userRepo := repository.NewUserRepository(db)
+				refreshTokenRepo := repository.NewRefreshTokenRepository(db)
+				refreshTokenService := services.NewRefreshTokenService(refreshTokenRepo)
+
+				{
+					refreshTokenController := controller.NewRefreshTokenController(refreshTokenService)
+					authGroup.POST("/refresh", refreshTokenController.RefreshTokenHandler)
+				}
+
+				{
+					googleAuthService := services.NewGoogleAuthService(userRepo)
+					googleAuthController := google.NewGoogleAuthController(googleAuthService, refreshTokenService)
+					authGroup.GET("/google/login", googleAuthController.LoginHandler)
+					authGroup.GET("/google/callback", googleAuthController.CallbackHandler)
+				}
 			}
 
 			{

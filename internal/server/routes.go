@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/AmitKarnam/WorkoutTracker/internal/controller"
 	"github.com/AmitKarnam/WorkoutTracker/internal/controller/oauth/google"
+	"github.com/AmitKarnam/WorkoutTracker/internal/middleware"
 	"github.com/AmitKarnam/WorkoutTracker/internal/repository"
 	"github.com/AmitKarnam/WorkoutTracker/internal/services"
 	"gorm.io/gorm"
@@ -28,24 +29,34 @@ func initRoutes(engine *gin.Engine, db *gorm.DB) {
 				refreshTokenRepo := repository.NewRefreshTokenRepository(db)
 				refreshTokenService := services.NewRefreshTokenService(refreshTokenRepo)
 
+				authGroup.POST("/logout")
+
+				tokenGroup := authGroup.Group("/token")
 				{
 					refreshTokenController := controller.NewRefreshTokenController(refreshTokenService)
-					authGroup.POST("/refresh", refreshTokenController.RefreshTokenHandler)
+					tokenGroup.POST("/refresh", refreshTokenController.RefreshTokenHandler)
 				}
 
+				googleGroup := authGroup.Group("/google")
 				{
 					googleAuthService := services.NewGoogleAuthService(userRepo)
 					googleAuthController := google.NewGoogleAuthController(googleAuthService, refreshTokenService)
-					authGroup.GET("/google/login", googleAuthController.LoginHandler)
-					authGroup.GET("/google/callback", googleAuthController.CallbackHandler)
+					googleGroup.GET("/login", googleAuthController.LoginHandler)
+					googleGroup.GET("/callback", googleAuthController.CallbackHandler)
 				}
 			}
 
 			{
+
+				// TODO: Should be under authorization middleware
+				// TODO: Should be under RBAC middleware
 				muscleGroup := versionGroup.Group("/muscle-groups")
 				muscleGroupRepository := repository.NewMuscleGroupRepository(db)
+				userRepository := repository.NewUserRepository(db)
+				userService := services.NewUserService(userRepository)
 				muscleGroupService := services.NewMuscleGroupService(muscleGroupRepository)
 				muscleGroupController := controller.NewMuscleGroupController(muscleGroupService)
+				muscleGroup.Use(func(c *gin.Context) { middleware.JWTValidate(c, userService) })
 				muscleGroup.GET("", muscleGroupController.Get)
 				muscleGroup.GET(":id", muscleGroupController.GetByID)
 				muscleGroup.POST("", muscleGroupController.Post)
@@ -54,6 +65,8 @@ func initRoutes(engine *gin.Engine, db *gorm.DB) {
 			}
 
 			{
+				// TODO: Should be under authorization middleware
+				// TODO: Should be under RBAC middleware
 				strengthExercise := versionGroup.Group("strength-exercises")
 				muscleGroupRepository := repository.NewMuscleGroupRepository(db)
 				strengthExerciseRepository := repository.NewStrengthExerciseRepository(db, muscleGroupRepository)
@@ -67,6 +80,8 @@ func initRoutes(engine *gin.Engine, db *gorm.DB) {
 			}
 
 			{
+				// TODO: Should be under authorization middleware
+				// TODO: Should be under RBAC middleware
 				yogaExercise := versionGroup.Group("yoga-exercises")
 				yogaExercise.GET("")
 				yogaExercise.GET(":id")
@@ -76,6 +91,8 @@ func initRoutes(engine *gin.Engine, db *gorm.DB) {
 			}
 
 			{
+				// TODO: Should be under authorization middleware
+				// TODO: Should be under RBAC middleware
 				coreExercise := versionGroup.Group("core-exercises")
 				coreExercise.GET("")
 				coreExercise.GET(":id")

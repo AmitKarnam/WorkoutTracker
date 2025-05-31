@@ -17,6 +17,7 @@ type RefreshTokenService interface {
 	CreateOrUpdate(ctx context.Context, userID uint) (string, error)
 	GetByToken(ctx context.Context, token string) (*models.RefreshToken, error)
 	HandleRefresh(ctx context.Context, token string) (string, string, error)
+	Delete(ctx context.Context, token string) error
 }
 
 type refreshTokenService struct {
@@ -112,4 +113,12 @@ func (s *refreshTokenService) HandleRefresh(ctx context.Context, token string) (
 
 	// Send back the access token, refresh token
 	return newAccessToken, newRefreshToken, nil
+}
+
+func (s *refreshTokenService) Delete(ctx context.Context, token string) error {
+	tokenInstance, err := s.tokenRepo.FindByToken(ctx, token)
+	if err != nil {
+		return fmt.Errorf("unable to fetch refresh token")
+	}
+	return s.tokenRepo.Delete(ctx, tokenInstance.ID)
 }

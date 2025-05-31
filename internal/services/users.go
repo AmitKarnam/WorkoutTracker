@@ -10,6 +10,7 @@ import (
 
 type UserService interface {
 	FindByID(ctx context.Context, id uint) (*models.User, error)
+	VerifyUserRole(ctx context.Context, id uint, role models.UserRole) (bool, error)
 }
 
 type userService struct {
@@ -27,4 +28,17 @@ func (s *userService) FindByID(ctx context.Context, id uint) (*models.User, erro
 	default:
 		return s.repo.FindByID(ctx, id)
 	}
+}
+
+func (s *userService) VerifyUserRole(ctx context.Context, id uint, role models.UserRole) (bool, error) {
+	user, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return false, fmt.Errorf(fmt.Sprintf("error finding user with id %s", id))
+	}
+
+	if user.Role != role {
+		return false, fmt.Errorf("error user role invalid")
+	}
+
+	return true, nil
 }

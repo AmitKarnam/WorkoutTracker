@@ -14,4 +14,8 @@ const (
 	// Cookie security flags
 	CookieSecure   = false // Set to true in production when using HTTPS
 	CookieHttpOnly = true  // Prevents JavaScript access to cookies
+
+	// JWT Claims
+	JWTUserID   = "user_id"
+	JWTUserRole = "user_role"
 )

@@ -6,18 +6,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type userRole string
+type UserRole string
 
 const (
-	Customer userRole = "Customer"
-	Admin    userRole = "Admin"
+	Customer UserRole = "Customer"
+	Admin    UserRole = "Admin"
 )
 
 // ValidRoles contains the allowed values for userRole
-var ValidRoles = []userRole{Customer, Admin}
+var ValidRoles = []UserRole{Customer, Admin}
 
 // IsValid checks if the role is valid
-func (r userRole) IsValid() bool {
+func (r UserRole) IsValid() bool {
 	for _, validRole := range ValidRoles {
 		if r == validRole {
 			return true
@@ -30,7 +30,7 @@ type User struct {
 	gorm.Model
 	Email string `gorm:"unique;not null" json:"email"`
 	Name  string `json:"name"`
-	Role  userRole
+	Role  UserRole
 }
 
 // BeforeSave GORM hook to validate the Role field

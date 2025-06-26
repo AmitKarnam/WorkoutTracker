@@ -15,6 +15,7 @@ func GenerateUserAccessToken(user *models.User) (string, error) {
 
 	claims := jwt.MapClaims{
 		"sub":                 fmt.Sprintf("%d", user.ID),
+		"iss":                 constants.Project,
 		constants.JWTUserID:   user.ID,
 		constants.JWTUserRole: user.Role,
 		"iat":                 time.Now().Unix(),

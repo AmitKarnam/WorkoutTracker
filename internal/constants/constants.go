@@ -5,6 +5,8 @@ import (
 )
 
 const (
+	Project = "workout tracker"
+
 	AccessTokenExpiry  = 15 * time.Minute
 	RefreshTokenExpiry = 7 * 24 * time.Hour
 	AccessTokenCookie  = "access-token"

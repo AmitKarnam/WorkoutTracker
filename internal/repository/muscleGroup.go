@@ -8,7 +8,7 @@ import (
 )
 
 type MuscleGroupRepository interface {
-	FindAll(ctx context.Context) ([]models.MuscleGroup, error)
+	FindAll(ctx context.Context) (*[]models.MuscleGroup, error)
 	FindByID(ctx context.Context, id uint) (*models.MuscleGroup, error)
 	FindByName(ctx context.Context, name string) (*models.MuscleGroup, error)
 	Create(ctx context.Context, muscleGroup *models.MuscleGroup) error
@@ -24,10 +24,10 @@ func NewMuscleGroupRepository(db *gorm.DB) MuscleGroupRepository {
 	return &muscleGroupRepository{db: db}
 }
 
-func (r *muscleGroupRepository) FindAll(ctx context.Context) ([]models.MuscleGroup, error) {
+func (r *muscleGroupRepository) FindAll(ctx context.Context) (*[]models.MuscleGroup, error) {
 	var muscleGroups []models.MuscleGroup
 	err := r.db.WithContext(ctx).Find(&muscleGroups).Error
-	return muscleGroups, err
+	return &muscleGroups, err
 }
 
 func (r *muscleGroupRepository) FindByID(ctx context.Context, id uint) (*models.MuscleGroup, error) {

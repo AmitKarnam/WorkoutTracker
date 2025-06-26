@@ -9,10 +9,10 @@ import (
 )
 
 type MuscleGroupService interface {
-	GetAll(ctx context.Context) ([]models.MuscleGroup, error)
+	GetAll(ctx context.Context) (*[]models.MuscleGroup, error)
 	GetByID(ctx context.Context, id uint) (*models.MuscleGroup, error)
 	Create(ctx context.Context, muscleGroup *models.MuscleGroup) error
-	Update(ctx context.Context, id uint, input models.MuscleGroup) (*models.MuscleGroup, error)
+	Update(ctx context.Context, id uint, input models.MuscleGroup) error
 	Delete(ctx context.Context, id uint) error
 }
 
@@ -24,10 +24,10 @@ func NewMuscleGroupService(repo repository.MuscleGroupRepository) MuscleGroupSer
 	return &muscleGroupService{repo: repo}
 }
 
-func (s *muscleGroupService) GetAll(ctx context.Context) ([]models.MuscleGroup, error) {
+func (s *muscleGroupService) GetAll(ctx context.Context) (*[]models.MuscleGroup, error) {
 	select {
 	case <-ctx.Done():
-		return nil, fmt.Errorf("request canceled: %v", ctx.Err())
+		return nil, fmt.Errorf("request cancelled: %v", ctx.Err())
 	default:
 		return s.repo.FindAll(ctx)
 	}
@@ -36,7 +36,7 @@ func (s *muscleGroupService) GetAll(ctx context.Context) ([]models.MuscleGroup, 
 func (s *muscleGroupService) GetByID(ctx context.Context, id uint) (*models.MuscleGroup, error) {
 	select {
 	case <-ctx.Done():
-		return nil, fmt.Errorf("request canceled: %v", ctx.Err())
+		return nil, fmt.Errorf("request cancelled: %v", ctx.Err())
 	default:
 		return s.repo.FindByID(ctx, id)
 	}
@@ -45,7 +45,7 @@ func (s *muscleGroupService) GetByID(ctx context.Context, id uint) (*models.Musc
 func (s *muscleGroupService) Create(ctx context.Context, muscleGroup *models.MuscleGroup) error {
 	select {
 	case <-ctx.Done():
-		return fmt.Errorf("request canceled: %v", ctx.Err())
+		return fmt.Errorf("request cancelled: %v", ctx.Err())
 	default:
 		existing, err := s.repo.FindByName(ctx, muscleGroup.MuscleGroup)
 		if err == nil && existing != nil {
@@ -55,28 +55,28 @@ func (s *muscleGroupService) Create(ctx context.Context, muscleGroup *models.Mus
 	}
 }
 
-func (s *muscleGroupService) Update(ctx context.Context, id uint, input models.MuscleGroup) (*models.MuscleGroup, error) {
+func (s *muscleGroupService) Update(ctx context.Context, id uint, input models.MuscleGroup) error {
 	select {
 	case <-ctx.Done():
-		return nil, fmt.Errorf("request canceled: %v", ctx.Err())
+		return fmt.Errorf("request cancelled: %v", ctx.Err())
 	default:
 		muscleGroup, err := s.repo.FindByID(ctx, id)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		muscleGroup.MuscleGroup = input.MuscleGroup
 		muscleGroup.Description = input.Description
 
 		err = s.repo.Update(ctx, muscleGroup)
-		return muscleGroup, err
+		return err
 	}
 }
 
 func (s *muscleGroupService) Delete(ctx context.Context, id uint) error {
 	select {
 	case <-ctx.Done():
-		return fmt.Errorf("request canceled: %v", ctx.Err())
+		return fmt.Errorf("request cancelled: %v", ctx.Err())
 	default:
 		_, err := s.repo.FindByID(ctx, id)
 		if err != nil {

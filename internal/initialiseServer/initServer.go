@@ -74,11 +74,6 @@ func loadEnv(filepath string) error {
 	return nil
 }
 
-// Load secrets
-// func loadSecrets() error {
-// 	return nil
-// }
-
 // Connect to database and migrate database
 func migrateDB() error {
 	// Read values from koanf
@@ -102,7 +97,7 @@ func migrateDB() error {
 
 	logger.Logger.Info("Starting database migration...")
 
-	err = dbConn.AutoMigrate(&models.ExerciseCategory{}, &models.MuscleGroup{}, &models.StrengthExercise{}, &models.StrengthWorkout{}, &models.CoreExercise{}, &models.CoreWorkout{}, &models.YogaExercise{}, &models.YogaWorkout{})
+	err = dbConn.AutoMigrate(&models.User{}, &models.MuscleGroup{}, &models.StrengthExercise{}, &models.StrengthWorkout{}, &models.CoreExercise{}, &models.CoreWorkout{}, &models.YogaExercise{}, &models.YogaWorkout{}, &models.RefreshToken{})
 	if err != nil {
 		return err
 	}
@@ -114,8 +109,7 @@ func migrateDB() error {
 
 // Start server
 func startRESTServer() error {
-	var serverPort string
-	serverPort = k.String("SERVER_PORT")
+	serverPort := k.String("SERVER_PORT")
 	err := server.Start(serverPort)
 	if err != nil {
 		return err
